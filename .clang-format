@@ -1,0 +1,34 @@
+# .clang-format
+BasedOnStyle: LLVM
+Language: Cpp
+Standard: c++20
+
+# --- Indentation & Tabs ---
+# Use tabs for indentation instead of spaces
+UseTab: Always
+IndentWidth: 4
+TabWidth: 4
+
+# --- Brace Placement ---
+# Keep opening braces on the same line (Attach / K&R style)
+# Example:
+#     if (condition) {
+#         foo();
+#     }
+BreakBeforeBraces: Attach
+
+# --- Class & Access Modifiers ---
+# Align access specifiers (public:, private:) with class indentation
+AccessModifierOffset: -4
+
+# --- Code Structure & Wrapping ---
+ColumnLimit: 100
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+
+# --- Formatting & Cleanliness ---
+PointerAlignment: Left
+SpacesInParentheses: false
+SpacesBeforeTrailingComments: 1
+SortIncludes: true
