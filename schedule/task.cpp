@@ -1,34 +1,38 @@
 #include "task.hpp"
+#include <utility>
 
-Task::Task(string name, int missed_deadlines, int execution_count, chrono::microseconds period,
-        chrono::steady_clock::time_point last_run_time, chrono::steady_clock::time_point next_run_time, function<void()> callback) {
-            string m_name = name;
-            int m_missed_deadlines = missed_deadlines;
-            int m_execution_count = execution_count;
-            chrono::microseconds m_period = period;
-            chrono::steady_clock::time_point m_last_run_time = last_run_time;
-            chrono::steady_clock::time_point m_next_run_time = next_run_time;
-            function<void()> m_callback = callback;
-        }
-
-
-bool Task::is_due(chrono::steady_clock::time_point now) const {
-    if (now >= next_run_time) {
-        return true;
-    } else {
-        return false;
-    }
-
+Task::Task(const std::string& name,
+           int missed_deadlines,
+           int execution_count,
+           std::chrono::microseconds period,
+           std::chrono::steady_clock::time_point last_run_time,
+           std::chrono::steady_clock::time_point next_run_time,
+           std::function<void()> callback)
+    : m_name(name)
+    , m_missed_deadlines(missed_deadlines)
+    , m_execution_count(execution_count)
+    , m_period(period)
+    , m_last_run_time(last_run_time)
+    , m_next_run_time(next_run_time)
+    , m_callback(std::move(callback))
+{
 }
 
-bool Task::execute(chrono::steady_clock::time_point now) {
-    if (is_due(now)) {
-        callback();
-        last_run_time = now;
-        next_run_time = now + period;
-        execution_count++;
-        return true;
-    } else {
+bool Task::is_due(std::chrono::steady_clock::time_point now) const {
+    return now >= m_next_run_time;
+}
+
+bool Task::execute(std::chrono::steady_clock::time_point now) {
+    if (!is_due(now)) {
         return false;
     }
+
+    if (m_callback) {
+        m_callback();
+    }
+
+    m_last_run_time = now;
+    m_next_run_time = now + m_period;
+    m_execution_count++;
+    return true;
 }
