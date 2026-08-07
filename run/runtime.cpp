@@ -1,6 +1,6 @@
 #include "runtime.hpp"
 #include "log.hpp"
-#include "runtime/time.hpp"
+#include "time.hpp"
 
 #include <stdexcept>
 
