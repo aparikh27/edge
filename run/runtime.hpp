@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../schedule/scheduler.hpp"
 #include <chrono>
 #include <cstdint>
 
@@ -42,6 +43,7 @@ public:
 private:
     State current_state_{State::Uninitialized};
     RuntimeConfig config_{};
+    Scheduler scheduler_{};
 };
 
 } // namespace ember::runtime
