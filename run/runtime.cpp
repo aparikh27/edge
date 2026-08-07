@@ -1,6 +1,7 @@
 #include "runtime.hpp"
 #include "log.hpp"
 #include "time.hpp"
+#include "../schedule/scheduler.hpp"
 
 #include <stdexcept>
 
@@ -52,7 +53,7 @@ void Runtime::step() {
         return;
     }
 
-    // Kernel tick logic goes here (e.g., dispatching multi-agent tasks)
+    scheduler_.tick();
 }
 
 void Runtime::stop() {
