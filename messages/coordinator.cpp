@@ -2,18 +2,18 @@
 
 namespace ember::messaging {
 
-void Coordinator::publish(const Message& m) {
-    notify(m);
-}
-
-void Coordinator::subscribe(const Subscriber& s) {
+void Coordinator::subscribe(const std::shared_ptr<Subscriber>& s) {
+    if (!s) return;
+    std::lock_guard<std::mutex> lock(m_mutex);
     m_subscribers.push_back(s);
 }
 
-void Coordinator::notify(const Message& m) {
-    for (auto& subscriber : m_subscribers) {
-        if (subscriber.topic == m.topic) {
-            subscriber.alert();
+void Coordinator::publish(const Message& m) {
+    std::lock_guard<std::mutex> lock(m_mutex);
+    for (const auto& subscriber : m_subscribers) {
+        if (subscriber && subscriber->get_topic() == m.topic) {
+            // Non-blocking: pushes data into the subscriber's private ThreadSafeQueue!
+            subscriber->get_queue()->push(m);
         }
     }
 }
