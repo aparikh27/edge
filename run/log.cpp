@@ -1,5 +1,5 @@
-#include "runtime/log.hpp"
-#include "runtime/time.hpp"
+#include "log.hpp"
+#include "time.hpp"
 
 #include <iostream>
 #include <format> // Standard C++20 formatting library
@@ -17,7 +17,7 @@ std::string_view level_to_string(Level level) noexcept {
     }
 }
 
-std::string generate_logtermin(Level level, std::string_view message) {
+std::string generate_log(Level level, std::string_view message) {
     // Grab the current timestamp in milliseconds 
     const uint64_t timestamp = ember::time::now_ms();
     

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../schedule/scheduler.hpp"
+#include <atomic>
 #include <chrono>
 #include <cstdint>
 
@@ -41,7 +42,7 @@ public:
     [[nodiscard]] bool is_running() const noexcept;
 
 private:
-    State current_state_{State::Uninitialized};
+    std::atomic<State> current_state_{State::Uninitialized};
     RuntimeConfig config_{};
     Scheduler scheduler_{};
 };

@@ -75,15 +75,9 @@ Rate::Rate(uint32_t target_hz)
 	  last_time_(now()) {}
 
 void Rate::sleep() {
-	const auto current_time = now();
-	const auto elapsed =
-		std::chrono::duration_cast<std::chrono::microseconds>(current_time - last_time_);
-
-	if (elapsed < target_period_) {
-		std::this_thread::sleep_for(target_period_ - elapsed);
-	}
-
-	last_time_ = now();
+	const auto target_time = last_time_ + target_period_;
+	std::this_thread::sleep_until(target_time);
+	last_time_ = target_time;
 }
 
 void Rate::reset() noexcept {

@@ -35,24 +35,33 @@ public:
         std::lock_guard<std::mutex> lock(mutex_);
         auto type_idx = std::type_index(typeid(EventType));
 
-        if (subscribers_.find(type_idx) == subscribers_.end()) {
-            subscribers_[type_idx] = std::make_unique<HandlerList<EventType>>();
+        auto& entry = subscribers_[type_idx];
+        if (!entry) {
+            entry = std::make_unique<HandlerList<EventType>>();
         }
 
-        auto* list = static_cast<HandlerList<EventType>*>(subscribers_[type_idx].get());
-        list->handlers.push_back(callback);
+        auto* list = static_cast<HandlerList<EventType>*>(entry.get());
+        list->handlers.push_back(std::move(callback));
     }
 
     // Publish an event instance to all matching subscribers
     template <typename EventType>
     void publish(const EventType& event) {
-        std::lock_guard<std::mutex> lock(mutex_);
-        auto type_idx = std::type_index(typeid(EventType));
+        std::vector<std::function<void(const EventType&)>> callbacks_copy;
+        {
+            std::lock_guard<std::mutex> lock(mutex_);
+            auto type_idx = std::type_index(typeid(EventType));
 
-        auto it = subscribers_.find(type_idx);
-        if (it != subscribers_.end()) {
-            auto* list = static_cast<HandlerList<EventType>*>(it->second.get());
-            for (const auto& handler : list->handlers) {
+            auto it = subscribers_.find(type_idx);
+            if (it != subscribers_.end()) {
+                auto* list = static_cast<HandlerList<EventType>*>(it->second.get());
+                callbacks_copy = list->handlers;
+            }
+        }
+
+        // Execute handlers outside of lock section to prevent deadlocks
+        for (const auto& handler : callbacks_copy) {
+            if (handler) {
                 handler(event);
             }
         }
