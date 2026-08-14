@@ -17,7 +17,10 @@ public:
 
     // How thread worker loops read messages safely
     bool pop(Message& msg) { return m_queue->try_pop(msg); }
-    void wait_and_pop(Message& msg) { m_queue->wait_and_pop(msg); }
+    bool wait_and_pop(Message& msg) { return m_queue->wait_and_pop(msg); }
+    void stop() { if (m_queue) m_queue->shutdown(); }
+
+    void alert();
 
 private:
     std::string m_topic;
