@@ -27,12 +27,21 @@ bool Task::execute(std::chrono::steady_clock::time_point now) {
         return false;
     }
 
+    // Check if execution was significantly delayed past due time
+    if (now > m_next_run_time + std::chrono::microseconds(100)) {
+        m_missed_deadlines++;
+    }
+
     if (m_callback) {
         m_callback();
     }
 
     m_last_run_time = now;
-    m_next_run_time = now + m_period;
+    // Maintain phase alignment across periodic executions
+    m_next_run_time += m_period;
+    if (m_next_run_time < now) {
+        m_next_run_time = now + m_period;
+    }
     m_execution_count++;
     return true;
 }

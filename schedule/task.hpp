@@ -14,8 +14,13 @@ public:
          std::chrono::steady_clock::time_point next_run_time,
          std::function<void()> callback);
 
-    bool is_due(std::chrono::steady_clock::time_point now) const;
+    [[nodiscard]] bool is_due(std::chrono::steady_clock::time_point now) const;
     bool execute(std::chrono::steady_clock::time_point now);
+
+    [[nodiscard]] const std::string& get_name() const { return m_name; }
+    [[nodiscard]] int get_missed_deadlines() const { return m_missed_deadlines; }
+    [[nodiscard]] int get_execution_count() const { return m_execution_count; }
+    [[nodiscard]] std::chrono::microseconds get_period() const { return m_period; }
 
 private:
     std::string m_name;
