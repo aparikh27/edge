@@ -36,7 +36,13 @@ class DeviceManager {
             }
             m_devices[it].start();
         }
-        bool stop_device(Device d);
+        bool stop_device(Device d) {
+            auto it = find(m_devices.begin(), m_devices.end(), d);
+            if (it == m_devices.end()) {
+                return false;
+            }
+            m_devices[it].stop();
+        }
         bool shutdown_device(Device d) {
             auto it = find(m_devices.begin(), m_devices.end(), d);
             if (it == m_devices.end()) {
