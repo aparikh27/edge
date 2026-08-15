@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <algorithm>    
+#include <string>
 
 
 namespace ember::device_manager 
@@ -13,6 +14,19 @@ enum class DeviceState {
     Stopped,
     Error,
     Shutdown
+};
+
+class Device {
+    public:
+        Device(std::string name) : m_state(DeviceState::Uninitialized), m_name(name) {}
+        virtual void initialize() = 0;
+        virtual void start() = 0;
+        virtual void stop() = 0;
+        virtual void shutdown() = 0;
+        virtual ~Device() = default;
+    private:
+        DeviceState m_state;
+        std::string m_name;
 };
 
 class DeviceManager {
