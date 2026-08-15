@@ -6,7 +6,7 @@
 namespace ember::device_manager 
 {
     
-enum class Device {
+enum class DeviceState {
     Uninitialized,
     Initialized,
     Active,
@@ -21,9 +21,16 @@ class DeviceManager {
             m_devices.push_back(d);
             return true;
         }
-        bool initialize_device();
-        bool start_device();
-        bool stop_device();
+        bool initialize_device(Device d) {
+            auto it = find(m_devices.begin(), m_devices.end(), d);
+            if (it == m_devices.end()) {
+                return false;
+            }
+            m_devices[it].initialize();
+
+        }
+        bool start_device(Device d);
+        bool stop_device(Device d);
         bool shutdown_device(Device d) {
             auto it = find(m_devices.begin(), m_devices.end(), d);
             if (it == m_devices.end()) {
