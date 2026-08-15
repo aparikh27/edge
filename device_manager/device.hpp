@@ -29,7 +29,13 @@ class DeviceManager {
             m_devices[it].initialize();
 
         }
-        bool start_device(Device d);
+        bool start_device(Device d) {
+            auto it = find(m_devices.begin(), m_devices.end(), d);
+            if (it == m_devices.end()) {
+                return false;
+            }
+            m_devices[it].start();
+        }
         bool stop_device(Device d);
         bool shutdown_device(Device d) {
             auto it = find(m_devices.begin(), m_devices.end(), d);
@@ -42,8 +48,7 @@ class DeviceManager {
         }
 
     private:
-        std::vector<Device> m_devices;
-    
+        std::vector<Device> m_devices;    
 };
 
 
