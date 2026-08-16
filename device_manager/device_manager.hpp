@@ -6,6 +6,8 @@
 #include <mutex>
 #include <vector>
 
+namespace ember::device_manager {
+
 class DeviceManager {
 public:
     DeviceManager() = default;
