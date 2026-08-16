@@ -26,6 +26,7 @@ public:
     virtual bool start() = 0;
     virtual void stop() = 0;
     virtual void shutdown() = 0;
+    virtual void reset() = 0;
 
     // State getters/setters
     [[nodiscard]] const std::string& get_name() const { return m_name; }
