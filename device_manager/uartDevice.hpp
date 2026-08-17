@@ -30,6 +30,8 @@ namespace ember::device_manager {
                 
             }
             virtual void shutdown() {
+                stop();
+                set_state(DeviceState::Shutdown);
                 
             }
             virtual void reset() {
