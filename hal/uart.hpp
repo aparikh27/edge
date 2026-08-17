@@ -14,6 +14,7 @@ public:
     virtual void close() = 0;
 
     virtual void write(std::string_view data) = 0;
+    virtual void write(std::span<const uint8_t> data) = 0;
     virtual std::string read(size_t max_bytes) = 0;
     [[nodiscard]] virtual bool available() const = 0;
 };
