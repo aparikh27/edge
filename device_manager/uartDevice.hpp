@@ -39,6 +39,8 @@ namespace ember::device_manager {
                 initialize();
                 
             }
+
+            [[nodiscard]] std::shared_ptr<hal::IUart> get_uart() {return m_uart;}
         private:
             std::shared_ptr<hal::IUart> m_uart;
             uint32_t m_baud_rate;
