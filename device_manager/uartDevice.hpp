@@ -2,6 +2,9 @@
 #include "../hal/uart.hpp"
 #include "device.hpp"
 #include <memory>
+#include <span>
+#include <string_view>
+#include <cstdint>
 
 namespace ember::device_manager {
     class UartDevice : public Device {
@@ -40,7 +43,26 @@ namespace ember::device_manager {
                 
             }
 
+            // Send binary packet data
+            void send_bytes(std::span<const uint8_t> data) {
+                if (get_state() != DeviceState::Active || !m_uart) {
+                    return;
+                }
+                return m_uart->write(data);
+            }
+
+            // Send standard string messages
+            void send_message(std::string_view msg) {
+                auto bytes = std::span<const uint8_t>(
+                    reinterpret_cast<const uint8_t*>(msg.data()), 
+                    msg.size()
+                );
+                return send_bytes(bytes);
+            }
+
             [[nodiscard]] std::shared_ptr<hal::IUart> get_uart() {return m_uart;}
+
+
         private:
             std::shared_ptr<hal::IUart> m_uart;
             uint32_t m_baud_rate;
