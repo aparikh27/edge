@@ -7,8 +7,11 @@ namespace ember::device_manager {
     class UartDevice : public Device {
         public:
             UartDevice(std::string name, std::shared_ptr<hal::IUart> uart_hal) : Device(std::move(name)), m_uart(std::move(uart_hal)) {}
-            
-            bool initialize() {
+
+            bool initialize() override {
+                if (!m_uart) return false;
+                set_state(DeviceState::Initialized);
+                return true;
 
             }
             virtual bool start() {
