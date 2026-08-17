@@ -9,39 +9,44 @@
 namespace ember::device_manager {
     class UartDevice : public Device {
         public:
-            UartDevice(std::string name, std::shared_ptr<hal::IUart> uart_hal, uint32_t baud_rate) : Device(std::move(name)), m_uart(std::move(uart_hal)), m_baud_rate(baud_rate) {}
+            UartDevice(std::string name, std::shared_ptr<hal::IUart> uart_hal, uint32_t baud_rate) 
+                : Device(std::move(name)), m_uart(std::move(uart_hal)), m_baud_rate(baud_rate) {}
 
             bool initialize() override {
                 if (!m_uart) return false;
                 set_state(DeviceState::Initialized);
                 return true;
-
             }
-            virtual bool start() {
+
+            bool start() override {
                 if (get_state() == DeviceState::Initialized || get_state() == DeviceState::Stopped) {
-                    set_state(DeviceState::Active);
-                    return true;
+                    if (m_uart) {
+                        set_state(DeviceState::Active);
+                        return true;
+                    }
+                    set_state(DeviceState::Error);
                 }
                 return false;
-                
             }
-            virtual void stop() {
+
+            void stop() override {
                 if (m_uart) {
                     m_uart->close();
                 }
                 set_state(DeviceState::Stopped);
-                
             }
-            virtual void shutdown() {
+
+            void shutdown() override {
                 stop();
                 set_state(DeviceState::Shutdown);
-                
             }
-            virtual void reset() {
+
+            void reset() override {
                 stop();
                 initialize();
-                
             }
+
+            // --- SEND MESSAGE API ---
 
             // Send binary packet data
             void send_bytes(std::span<const uint8_t> data) {
@@ -60,12 +65,10 @@ namespace ember::device_manager {
                 return send_bytes(bytes);
             }
 
-            [[nodiscard]] std::shared_ptr<hal::IUart> get_uart() {return m_uart;}
-
+            [[nodiscard]] std::shared_ptr<hal::IUart> get_uart() const { return m_uart; }
 
         private:
             std::shared_ptr<hal::IUart> m_uart;
             uint32_t m_baud_rate;
-
     };
 }
