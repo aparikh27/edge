@@ -6,7 +6,7 @@
 namespace ember::device_manager {
     class UartDevice : public Device {
         public:
-            UartDevice(std::string name, std::shared_ptr<hal::IUart> uart_hal) : Device(std::move(name)), m_uart(std::move(uart_hal)) {}
+            UartDevice(std::string name, std::shared_ptr<hal::IUart> uart_hal, uint32_t baud_rate) : Device(std::move(name)), m_uart(std::move(uart_hal)), m_baud_rate(baud_rate) {}
 
             bool initialize() override {
                 if (!m_uart) return false;
@@ -15,6 +15,11 @@ namespace ember::device_manager {
 
             }
             virtual bool start() {
+                if (get_state() == DeviceState::Initialized || get_state() == DeviceState::Stopped) {
+                    set_state(DeviceState::Active);
+                    return true;
+                }
+                return false;
                 
             }
             virtual void stop() {
@@ -28,6 +33,7 @@ namespace ember::device_manager {
             }
         private:
             std::shared_ptr<hal::IUart> m_uart;
+            uint32_t m_baud_rate;
 
     };
 }
