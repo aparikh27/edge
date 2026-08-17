@@ -35,6 +35,8 @@ namespace ember::device_manager {
                 
             }
             virtual void reset() {
+                stop();
+                initialize();
                 
             }
         private:
