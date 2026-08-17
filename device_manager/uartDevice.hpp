@@ -23,6 +23,10 @@ namespace ember::device_manager {
                 
             }
             virtual void stop() {
+                if (m_uart) {
+                    m_uart->close();
+                }
+                set_state(DeviceState::Stopped);
                 
             }
             virtual void shutdown() {
