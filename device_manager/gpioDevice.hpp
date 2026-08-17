@@ -32,6 +32,11 @@ public:
         set_state(DeviceState::Stopped);
     }
 
+    void shutdown() override {
+        stop();
+        set_state(DeviceState::Shutdown);
+    }
+
     void reset() override {
         stop();
         initialize();
