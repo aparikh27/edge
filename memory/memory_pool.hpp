@@ -48,6 +48,16 @@ public:
         return static_cast<void*>(chunk);
     }
 
+    void deallocate(void* ptr) {
+        if (!ptr) return;
+
+        std::lock_guard<std::mutex> lock(m_mutex);
+        auto* node = static_cast<Node*>(ptr);
+        node->next = m_free_head;
+        m_free_head = node;
+        --m_allocated_chunks;
+    }
+
 
 
 
