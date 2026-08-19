@@ -36,6 +36,20 @@ public:
     MemoryPool(const MemoryPool&) = delete;
     MemoryPool& operator=(const MemoryPool&) = delete;
 
+        void* allocate() {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        if (!m_free_head) {
+            return nullptr; // Pool exhausted
+        }
+
+        Node* chunk = m_free_head;
+        m_free_head = m_free_head->next;
+        ++m_allocated_chunks;
+        return static_cast<void*>(chunk);
+    }
+
+
+
 
 
 private:
