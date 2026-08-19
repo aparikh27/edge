@@ -58,10 +58,11 @@ public:
         --m_allocated_chunks;
     }
 
-
-
-
-
+    [[nodiscard]] size_t get_capacity() const { return m_chunk_count; }
+    [[nodiscard]] size_t get_allocated_count() const {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        return m_allocated_chunks;
+    }
 private:
     struct Node {
         Node* next{nullptr};
