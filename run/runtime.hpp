@@ -3,7 +3,11 @@
 #include "../schedule/scheduler.hpp"
 #include <atomic>
 #include <chrono>
+#include <condition_variable>
 #include <cstdint>
+#include <functional>
+#include <mutex>
+#include <string>
 
 namespace ember::runtime {
 
@@ -35,7 +39,17 @@ public:
     // Public Lifecycle Interface
     void run();
     void step();
+
+    // Requests the run() loop (expected to be executing on another thread)
+    // to stop, and blocks until it has actually reached State::Stopped or
+    // config_.shutdown_timeout elapses — closes the window where a caller
+    // could destroy/reuse the Runtime while run() is still mid-iteration.
     void stop();
+
+    // Register periodic work with the Runtime's internal scheduler. Safe to
+    // call before run() starts; avoid calling it from inside a scheduled
+    // task's own callback (Scheduler's lock is non-recursive).
+    void schedule_task(const std::string& name, std::chrono::microseconds period, std::function<void()> callback);
 
     // Accessors
     [[nodiscard]] State get_state() const noexcept;
@@ -44,7 +58,10 @@ public:
 private:
     std::atomic<State> current_state_{State::Uninitialized};
     RuntimeConfig config_{};
-    Scheduler scheduler_{};
+    schedule::Scheduler scheduler_{};
+
+    std::mutex state_mutex_;
+    std::condition_variable state_cv_;
 };
 
 } // namespace ember::runtime

@@ -23,7 +23,7 @@ Runtime::Runtime(const RuntimeConfig& config)
 }
 
 Runtime::~Runtime() {
-    if (current_state_ == State::Running) {
+    if (current_state_ == State::Running || current_state_ == State::Stopping) {
         stop();
     }
 }
@@ -44,7 +44,11 @@ void Runtime::run() {
         rate_limiter.sleep();
     }
 
-    current_state_ = State::Stopped;
+    {
+        std::lock_guard<std::mutex> lock(state_mutex_);
+        current_state_ = State::Stopped;
+    }
+    state_cv_.notify_all();
     log::log_message(log::Level::Info, "Runtime kernel loop finished.");
 }
 
@@ -57,10 +61,34 @@ void Runtime::step() {
 }
 
 void Runtime::stop() {
-    if (current_state_ == State::Running) {
-        log::log_message(log::Level::Info, "Stopping Runtime kernel...");
-        current_state_ = State::Stopping;
+    // Any caller observing Running or Stopping waits for Stopped below —
+    // not just whichever caller happens to win the CAS — so a second,
+    // concurrent stop() (including one made from the destructor) still
+    // blocks for real confirmation instead of returning immediately.
+    const State observed = current_state_.load();
+    if (observed != State::Running && observed != State::Stopping) {
+        return; // Nothing to stop.
     }
+
+    State expected = State::Running;
+    if (current_state_.compare_exchange_strong(expected, State::Stopping)) {
+        log::log_message(log::Level::Info, "Stopping Runtime kernel...");
+    }
+
+    std::unique_lock<std::mutex> lock(state_mutex_);
+    const bool stopped = state_cv_.wait_for(lock, config_.shutdown_timeout, [this] {
+        return current_state_.load() == State::Stopped;
+    });
+
+    if (!stopped) {
+        log::log_message(log::Level::Warning,
+            "Runtime did not reach State::Stopped within shutdown_timeout; "
+            "the run() loop may still be executing on its thread.");
+    }
+}
+
+void Runtime::schedule_task(const std::string& name, std::chrono::microseconds period, std::function<void()> callback) {
+    scheduler_.schedule(name, period, std::move(callback));
 }
 
 State Runtime::get_state() const noexcept {
