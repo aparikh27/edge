@@ -3,23 +3,24 @@
 #include "checksum.hpp"
 #include "endian.hpp"
 
-#include <cstdint> 
-#include <cstring> 
+#include <algorithm>
+#include <cstdint>
+#include <cstring>
+#include <limits>
+#include <stdexcept>
 #include <vector>
 #include <span>
 
 namespace ember::serialization {
 
-struct PacketHeader {
-    uint8_t magic[2]{'E', 'M'};
-    uint8_t type{0};
-    uint16_t payload_len{0};
-};
-
 class Serializer {
 public:
     // Packs payload bytes into a fully framed, checksummed binary packet
     static std::vector<uint8_t> pack(uint8_t msg_type, std::span<const uint8_t> payload) {
+        if (payload.size() > std::numeric_limits<uint16_t>::max()) {
+            throw std::length_error("Serializer::pack: payload exceeds uint16_t length field");
+        }
+
         size_t total_size = 2 + 1 + 2 + payload.size() + 2; // Magic + Type + Len + Payload + Checksum
         std::vector<uint8_t> packet(total_size);
 
