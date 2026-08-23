@@ -18,7 +18,7 @@ using namespace ember;
 
 TEST(EmberIntegrationTest, EndToEndThermalMonitoringAndControl) {
     // 1. Setup Infrastructure
-    Scheduler scheduler;
+    schedule::Scheduler scheduler;
     messaging::Coordinator coordinator;
     events::EventBus event_bus;
     hal::MockGPIO mock_fan_gpio(13, hal::PinMode::Output);
