@@ -96,7 +96,7 @@ int main() {
     std::cout << "[PASS] MockUart operations verified.\n";
 
     // 6. Test Scheduler & Tasks
-    Scheduler scheduler;
+    schedule::Scheduler scheduler;
     int task_counter = 0;
     scheduler.schedule("HeartbeatTask", std::chrono::microseconds(1000), [&task_counter]() {
         task_counter++;
