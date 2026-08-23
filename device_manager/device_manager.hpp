@@ -16,7 +16,7 @@ public:
     DeviceManager(const DeviceManager&) = delete;
     DeviceManager& operator=(const DeviceManager&) = delete;
 
-    bool register_device(std::shared_ptr<Device> device) {
+    bool register_device(const std::shared_ptr<Device>& device) {
         if (!device) return false;
         std::lock_guard<std::mutex> lock(m_mutex);
         

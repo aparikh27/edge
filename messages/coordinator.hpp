@@ -18,6 +18,7 @@ public:
 
     void publish(const Message& m);
     void subscribe(const std::shared_ptr<Subscriber>& s);
+    void unsubscribe(const std::shared_ptr<Subscriber>& s);
 
 private:
     mutable std::mutex m_mutex;

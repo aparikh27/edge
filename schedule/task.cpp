@@ -1,6 +1,8 @@
 #include "task.hpp"
 #include <utility>
 
+namespace ember::schedule {
+
 Task::Task(const std::string& name,
            int missed_deadlines,
            int execution_count,
@@ -45,3 +47,5 @@ bool Task::execute(std::chrono::steady_clock::time_point now) {
     m_execution_count++;
     return true;
 }
+
+} // namespace ember::schedule

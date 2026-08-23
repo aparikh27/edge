@@ -1,20 +1,25 @@
 #pragma once
 
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <vector>
 #include <mutex>
 #include <new>
+#include <stdexcept>
 
 namespace ember::memory {
 
 class MemoryPool {
 public:
-    MemoryPool(size_t chunk_size, size_t chunk_count)
-        : m_chunk_size(align_up(chunk_size, alignof(std::max_align_t))),
+    MemoryPool(size_t chunk_size, size_t chunk_count, size_t alignment = alignof(std::max_align_t))
+        : m_chunk_size(align_up(chunk_size, std::max(alignment, alignof(std::max_align_t)))),
           m_chunk_count(chunk_count),
           m_buffer(m_chunk_size * chunk_count) {
-        
+        if (chunk_size == 0 || chunk_count == 0) {
+            throw std::invalid_argument("MemoryPool: chunk_size and chunk_count must both be non-zero");
+        }
+
         // Build the embedded free list
         uint8_t* start = m_buffer.data();
         for (size_t i = 0; i < m_chunk_count - 1; ++i) {
@@ -36,7 +41,7 @@ public:
     MemoryPool(const MemoryPool&) = delete;
     MemoryPool& operator=(const MemoryPool&) = delete;
 
-        void* allocate() {
+    void* allocate() {
         std::lock_guard<std::mutex> lock(m_mutex);
         if (!m_free_head) {
             return nullptr; // Pool exhausted

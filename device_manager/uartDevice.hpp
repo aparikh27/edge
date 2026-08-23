@@ -14,6 +14,7 @@ namespace ember::device_manager {
 
             bool initialize() override {
                 if (!m_uart) return false;
+                m_uart->open(m_baud_rate);
                 set_state(DeviceState::Initialized);
                 return true;
             }
@@ -30,6 +31,7 @@ namespace ember::device_manager {
             }
 
             void stop() override {
+                if (get_state() == DeviceState::Shutdown) return; // Shutdown is terminal
                 if (m_uart) {
                     m_uart->close();
                 }
@@ -37,11 +39,13 @@ namespace ember::device_manager {
             }
 
             void shutdown() override {
+                if (get_state() == DeviceState::Shutdown) return; // idempotent
                 stop();
                 set_state(DeviceState::Shutdown);
             }
 
             void reset() override {
+                if (get_state() == DeviceState::Shutdown) return; // Shutdown is terminal; construct a new device instead
                 stop();
                 initialize();
             }
@@ -65,7 +69,7 @@ namespace ember::device_manager {
                 return send_bytes(bytes);
             }
 
-            [[nodiscard]] std::shared_ptr<hal::IUart> get_uart() const { return m_uart; }
+            [[nodiscard]] const std::shared_ptr<hal::IUart>& get_uart() const { return m_uart; }
 
         private:
             std::shared_ptr<hal::IUart> m_uart;

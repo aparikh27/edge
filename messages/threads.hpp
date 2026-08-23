@@ -16,7 +16,7 @@ public:
     ThreadSafeQueue(const ThreadSafeQueue&) = delete;
     ThreadSafeQueue& operator=(const ThreadSafeQueue&) = delete;
 
-    void push(T value);
+    bool push(T value);
     bool try_pop(T& value);
     bool wait_and_pop(T& value);
     void shutdown();
@@ -44,11 +44,12 @@ int ThreadSafeQueue<T>::size() const {
 }
 
 template<typename T>
-void ThreadSafeQueue<T>::push(T value) {
+bool ThreadSafeQueue<T>::push(T value) {
     std::lock_guard<std::mutex> lock(m_mutex);
-    if (m_shutdown) return;
+    if (m_shutdown) return false;
     m_queue.push(std::move(value));
-    m_cv.notify_one(); 
+    m_cv.notify_one();
+    return true;
 }
 
 template<typename T>

@@ -9,22 +9,39 @@ namespace ember::messaging {
 
 class Subscriber {
 public:
-    explicit Subscriber(std::string topic) 
-        : m_topic(std::move(topic)), m_queue(std::make_shared<ThreadSafeQueue<Message>>()) {}
+    using QueueType = ThreadSafeQueue<std::shared_ptr<const Message>>;
+
+    explicit Subscriber(std::string topic)
+        : m_topic(std::move(topic)), m_queue(std::make_shared<QueueType>()) {}
 
     [[nodiscard]] const std::string& get_topic() const { return m_topic; }
-    [[nodiscard]] std::shared_ptr<ThreadSafeQueue<Message>> get_queue() const { return m_queue; }
+    [[nodiscard]] std::shared_ptr<QueueType> get_queue() const { return m_queue; }
 
-    // How thread worker loops read messages safely
-    bool pop(Message& msg) { return m_queue->try_pop(msg); }
-    bool wait_and_pop(Message& msg) { return m_queue->wait_and_pop(msg); }
+    // How thread worker loops read messages safely. The queue carries a
+    // shared, immutable Message (Coordinator fans one out to every matching
+    // subscriber instead of deep-copying it per subscriber); pop() makes the
+    // one copy the caller actually needs.
+    bool pop(Message& msg) {
+        std::shared_ptr<const Message> ptr;
+        if (!m_queue->try_pop(ptr)) return false;
+        msg = *ptr;
+        return true;
+    }
+
+    bool wait_and_pop(Message& msg) {
+        std::shared_ptr<const Message> ptr;
+        if (!m_queue->wait_and_pop(ptr)) return false;
+        msg = *ptr;
+        return true;
+    }
+
     void stop() { if (m_queue) m_queue->shutdown(); }
 
     void alert();
 
 private:
     std::string m_topic;
-    std::shared_ptr<ThreadSafeQueue<Message>> m_queue;
+    std::shared_ptr<QueueType> m_queue;
 };
 
 } // namespace ember::messaging

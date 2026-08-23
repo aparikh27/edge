@@ -26,6 +26,7 @@ public:
     }
 
     void stop() override {
+        if (get_state() == DeviceState::Shutdown) return; // Shutdown is terminal
         if (m_gpio) {
             m_gpio->set_low(); // Safe default state
         }
@@ -33,20 +34,22 @@ public:
     }
 
     void shutdown() override {
+        if (get_state() == DeviceState::Shutdown) return; // idempotent
         stop();
         set_state(DeviceState::Shutdown);
     }
 
     void reset() override {
+        if (get_state() == DeviceState::Shutdown) return; // Shutdown is terminal; construct a new device instead
         stop();
         initialize();
     }
 
     // Access to underlying HAL for application logic
-    [[nodiscard]] std::shared_ptr<hal::IGpio> get_hal() const { return m_gpio; }
+    [[nodiscard]] const std::shared_ptr<hal::IGpio>& get_hal() const { return m_gpio; }
 
 private:
     std::shared_ptr<hal::IGpio> m_gpio;
 };
 
-} // namespace ember::device
+} // namespace ember::device_manager

@@ -4,6 +4,8 @@
 #include <functional>
 #include <string>
 
+namespace ember::schedule {
+
 class Task {
 public:
     Task(const std::string& name,
@@ -31,3 +33,5 @@ private:
     std::chrono::steady_clock::time_point m_next_run_time;
     std::function<void()> m_callback;
 };
+
+} // namespace ember::schedule
