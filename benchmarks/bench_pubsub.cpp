@@ -15,10 +15,10 @@
 // Run: bench_pubsub[.exe] [--markdown=path/to/file.md]
 
 #include "bench_framework.hpp"
-#include "events/EventBus.hpp"
-#include "messages/coordinator.hpp"
-#include "messages/publisher.hpp"
-#include "messages/subscriber.hpp"
+#include "../events/EventBus.hpp"
+#include "../messages/coordinator.hpp"
+#include "../messages/publisher.hpp"
+#include "../messages/subscriber.hpp"
 
 #include <atomic>
 #include <memory>
@@ -83,7 +83,7 @@ BenchRow bench_eventbus(std::size_t subscriber_count) {
     const double handler_invocations = static_cast<double>(kPublishCount * subscriber_count);
     const double msgs_per_sec = handler_invocations / (elapsed_ns / 1e9);
 
-    return make_row("Pub/Sub — EventBus (sync)",
+    return make_row("Pub/Sub EventBus (sync)",
                      std::to_string(subscriber_count) + " subscriber(s)",
                      stats, msgs_per_sec, " handler-calls/sec",
                      std::to_string(kPublishCount) + " publishes");
@@ -166,7 +166,7 @@ BenchRow bench_coordinator(std::size_t subscriber_count) {
 
     for (auto& sub : subscribers) sub->stop();
 
-    return make_row("Pub/Sub — Coordinator (async)",
+    return make_row("Pub/Sub Coordinator (async)",
                      std::to_string(subscriber_count) + " subscriber(s)",
                      stats, msgs_per_sec, " deliveries/sec",
                      std::to_string(kPublishCount) + " publishes, fan-out to " +

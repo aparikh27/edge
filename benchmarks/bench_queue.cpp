@@ -10,7 +10,7 @@
 // Run: bench_queue[.exe] [--markdown=path/to/file.md]
 
 #include "bench_framework.hpp"
-#include "messages/threads.hpp"
+#include "../messages/threads.hpp"
 
 #include <atomic>
 #include <thread>

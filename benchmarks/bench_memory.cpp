@@ -8,7 +8,7 @@
 // Run: bench_memory[.exe] [--markdown=path/to/file.md]
 
 #include "bench_framework.hpp"
-#include "memory/memory_pool.hpp"
+#include "../memory/memory_pool.hpp"  
 
 #include <cstdlib>
 #include <memory>
