@@ -12,7 +12,6 @@ Ember provides a modular runtime layer for:
 * Hardware abstraction
 * Device and driver management
 * Binary serialization
-* Runtime diagnostics and telemetry
 * Memory management
 
 The framework is designed around a simple idea:
