@@ -39,6 +39,7 @@ add_executable(ember_test_suite
     tests/event_bus_test.cpp
     tests/gpio_test.cpp
     tests/uart_test.cpp
+    tests/memory_test.cpp
     tests/ember_integration_test.cpp
 )
 
